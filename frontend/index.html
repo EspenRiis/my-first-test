@@ -34,29 +34,42 @@
         </div>
     </div>
 
-    <script>
-        const display = document.getElementById('display');
-        const buttons = document.querySelectorAll('.btn');
-        const equals = document.getElementById('equals');
-        const clear = document.getElementById('clear');
+   <script>
+const display = document.getElementById('display');
+const buttons = document.querySelectorAll('.btn');
+const equals = document.getElementById('equals');
+const clear = document.getElementById('clear');
 
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                display.value += btn.innerText;
-            });
-        });
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        display.value += btn.innerText;
+    });
+});
 
-        equals.addEventListener('click', () => {
-            try {
-                display.value = eval(display.value);
-            } catch {
-                display.value = 'Error';
-            }
+equals.addEventListener('click', async () => {
+    const expression = display.value;
+    try {
+        const response = await fetch('http://localhost:3000/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ expression })
         });
+        const data = await response.json();
+        if (data.result !== undefined) {
+            display.value = data.result;
+        } else {
+            display.value = data.error || 'Error in calculation';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        display.value = 'Server error';
+    }
+});
 
-        clear.addEventListener('click', () => {
-            display.value = '';
-        });
-    </script>
+clear.addEventListener('click', () => {
+    display.value = '';
+});
+</script>
+
 </body>
 </html>
